@@ -19,5 +19,3 @@ public class OneLetterperLine
         }
     }
 }
-Mon 9:40 PM
-You sent
