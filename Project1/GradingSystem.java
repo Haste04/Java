@@ -36,7 +36,7 @@ public class GradingSystem
                         System.out.println("PASSED");
                     else
                         System.out.println("FAILED");
-                        break;
+                    break;
                 case 2:
                     System.out.printf("Enter your Quiz Grade: ");
                     quizGrade = scan.nextFloat();
