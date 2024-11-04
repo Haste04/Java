@@ -2,14 +2,15 @@
     Date: November 3, 2024 */
 import java.io.*;
 import java.util.*;
-
-public class ContactManagementSYstem 
+    
+public class ContactManagementSystem 
 {
     public static void main (String[] args)
     {
         boolean condition = true;
         Scanner scan = new Scanner(System.in);
-
+        createFileIfNotExists();
+    
         while(condition)
         {
             System.out.println("\n\nContact Management System");
@@ -21,14 +22,14 @@ public class ContactManagementSYstem
             System.out.printf("Choose an option: ");
             char option = scan.next().charAt(0);
             scan.nextLine();
-
+    
             switch(option)
             {
                 case '1': //Add Contact
                     System.out.printf("\nEnter Contact Name: ");
                     String newContact = scan.nextLine();
                     boolean isDuplicate = false;
-
+    
                     try (BufferedReader reader = new BufferedReader(new FileReader("contacts.txt"))) 
                     { //Duplicate Checker
                         String line;
@@ -42,7 +43,7 @@ public class ContactManagementSYstem
                     {
                         System.err.println("Error: " + e.getMessage());
                     }
-
+    
                     if (!isDuplicate)
                     {
                         try (BufferedWriter writer = new BufferedWriter(new FileWriter("contacts.txt", true)))
@@ -59,7 +60,7 @@ public class ContactManagementSYstem
                     else
                         System.out.println("Name cannot be a duplicate");
                     break;
-
+    
                 case '2': //View Contact
                     System.out.println("Contacts:");
                     try (BufferedReader reader = new BufferedReader(new FileReader("contacts.txt")))
@@ -72,10 +73,10 @@ public class ContactManagementSYstem
                     } 
                     catch (IOException e) 
                     {
-                       System.err.println("Error: " + e.getMessage());
+                        System.err.println("Error: " + e.getMessage());
                     }
                     break;    
-                    
+                        
                 case '3': //Update Contact
                     System.out.printf("Enter the name of the contact to update: ");
                     String oldName = scan.nextLine();
@@ -84,7 +85,7 @@ public class ContactManagementSYstem
                     List<String> contacts = new ArrayList<>();
                     boolean contactFound = false;
                     isDuplicate = false;
-
+    
                     try (BufferedReader reader = new BufferedReader(new FileReader("contacts.txt")))
                     { //Duplicate Checker
                         String line;
@@ -98,7 +99,7 @@ public class ContactManagementSYstem
                     {
                         System.err.println("Error: " + e.getMessage());
                     }
-
+    
                     if (!isDuplicate)
                     {
                         try(BufferedReader reader = new BufferedReader(new FileReader("contacts.txt")))
@@ -119,7 +120,7 @@ public class ContactManagementSYstem
                         {
                             System.err.println("Error: " + e.getMessage());
                         }
-
+    
                         if(contactFound)
                         {
                             try (BufferedWriter writer = new BufferedWriter(new FileWriter("contacts.txt")))
@@ -142,13 +143,13 @@ public class ContactManagementSYstem
                     else
                         System.out.println("Name cannot be a duplicate");
                     break;
-                    
+                        
                 case '4': //Delete Contact
                     System.out.printf("\nEnter the name of the contact to delete: ");
                     String deleteName = scan.nextLine();
                     contacts = new ArrayList<>();
                     contactFound = false;
-
+    
                     try (BufferedReader reader = new BufferedReader(new FileReader("contacts.txt")))
                     {
                         String line;
@@ -164,7 +165,7 @@ public class ContactManagementSYstem
                     {
                         System.err.println("Error: " + e.getMessage());
                     }
-                    
+                        
                     if (contactFound)
                     {
                         try(BufferedWriter writer = new BufferedWriter(new FileWriter("contacts.txt")))
@@ -184,15 +185,28 @@ public class ContactManagementSYstem
                     else
                         System.out.println("Contact not found");
                     break;
-
+    
                 case '5': //Exiting the program
                     System.out.println("Exiting...");
                     condition = false;
                     break;
-
+    
                 default:
                     System.out.println("Please enter the correct option!");
             }
+        }
+    }
+    private static void createFileIfNotExists()
+    {
+        try 
+        {
+            File file = new File("contacts.txt");
+            if (!file.exists()) 
+                file.createNewFile();
+        } 
+        catch (IOException e) 
+        {
+            System.err.println("Error creating file: " + e.getMessage());
         }
     }
 }
