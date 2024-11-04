@@ -1,7 +1,9 @@
+/*  Haggai P. Estavilla  BSCS - 2A
+    Date: November 3, 2024 */
 import java.io.*;
 import java.util.*;
 
-public class ContactManagementSystem 
+public class ContactManagementSYstem 
 {
     public static void main (String[] args)
     {
@@ -25,17 +27,37 @@ public class ContactManagementSystem
                 case '1': //Add Contact
                     System.out.printf("\nEnter Contact Name: ");
                     String newContact = scan.nextLine();
+                    boolean isDuplicate = false;
 
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter("contacts.txt", true)))
-                    {
-                        writer.write(newContact);
-                        writer.newLine();
-                        System.out.println("Contact Added");
-                    }
-                    catch(IOException e)
+                    try (BufferedReader reader = new BufferedReader(new FileReader("contacts.txt"))) 
+                    { //Duplicate Checker
+                        String line;
+                        while((line = reader.readLine()) != null)
+                        {
+                            if(line.trim().equalsIgnoreCase(newContact))
+                                isDuplicate = true;  
+                        }
+                    } 
+                    catch (IOException e)
                     {
                         System.err.println("Error: " + e.getMessage());
                     }
+
+                    if (!isDuplicate)
+                    {
+                        try (BufferedWriter writer = new BufferedWriter(new FileWriter("contacts.txt", true)))
+                        {
+                            writer.write(newContact);
+                            writer.newLine();
+                            System.out.println("Contact Added");
+                        }
+                        catch(IOException e)
+                        {
+                            System.err.println("Error: " + e.getMessage());
+                        }
+                    }
+                    else
+                        System.out.println("Name cannot be a duplicate");
                     break;
 
                 case '2': //View Contact
@@ -61,44 +83,64 @@ public class ContactManagementSystem
                     String newName = scan.nextLine();
                     List<String> contacts = new ArrayList<>();
                     boolean contactFound = false;
+                    isDuplicate = false;
 
-                    try(BufferedReader reader = new BufferedReader(new FileReader("contacts.txt")))
-                    {
+                    try (BufferedReader reader = new BufferedReader(new FileReader("contacts.txt")))
+                    { //Duplicate Checker
                         String line;
                         while((line = reader.readLine()) != null)
                         {
-                            if(line.trim().equalsIgnoreCase(oldName))
-                            {
-                                contacts.add(newName);
-                                contactFound = true;     
-                            }
-                            else    
-                                contacts.add(line);
+                            if(line.trim().equalsIgnoreCase(newName))
+                                isDuplicate = true;  
                         }
-                    }
-                    catch(IOException e)
+                    } 
+                    catch (IOException e)
                     {
                         System.err.println("Error: " + e.getMessage());
                     }
 
-                    if(contactFound)
+                    if (!isDuplicate)
                     {
-                        try (BufferedWriter writer = new BufferedWriter(new FileWriter("contacts.txt")))
+                        try(BufferedReader reader = new BufferedReader(new FileReader("contacts.txt")))
                         {
-                            for (String contact : contacts)
+                            String line;
+                            while((line = reader.readLine()) != null)
                             {
-                                writer.write(contact);
-                                writer.newLine();
+                                if(line.trim().equalsIgnoreCase(oldName))
+                                {
+                                    contacts.add(newName);
+                                    contactFound = true;     
+                                }
+                                else    
+                                    contacts.add(line);
                             }
-                            System.out.println("Contact Updated");
                         }
-                        catch (IOException e)
+                        catch(IOException e)
                         {
-                            System.out.println("Error: " + e.getMessage());
+                            System.err.println("Error: " + e.getMessage());
                         }
+
+                        if(contactFound)
+                        {
+                            try (BufferedWriter writer = new BufferedWriter(new FileWriter("contacts.txt")))
+                            {
+                                for (String contact : contacts)
+                                {
+                                    writer.write(contact);
+                                    writer.newLine();
+                                }
+                                System.out.println("Contact Updated");
+                            }
+                            catch (IOException e)
+                            {
+                                System.out.println("Error: " + e.getMessage());
+                            }
+                        }
+                        else
+                            System.out.println("Contact not found");
                     }
                     else
-                        System.out.println("Contact not found");
+                        System.out.println("Name cannot be a duplicate");
                     break;
                     
                 case '4': //Delete Contact
