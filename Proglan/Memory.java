@@ -1,51 +1,128 @@
-// ========================
-// Memory.java
-// ========================
-public class Memory {
-    private int size = 100;
-    private String[] mem;
+/* Haggai P. Estavilla BSCSA - 3A */
+import java.io.*;
+import java.util.Scanner;
+public class Memory 
+{
+    private int size = 100; 
+    private String[] mem;    
 
-    // Constructor with fixed size
-    public Memory(int size) {
+    public Memory(int size) 
+    {
         this.size = size;
         mem = new String[size];
-    }
 
-    // Constructor with initial data
-    public Memory(String[] data) {
-        this.size = data.length;
-        mem = new String[size];
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) 
+        {
+            mem[i] = "0000";
+        }
+    }
+    public Memory(String[] data) 
+    {
+        int datasize = data.length;
+        mem = new String[datasize];
+
+        for (int i = 0; i < datasize; i++) 
             mem[i] = data[i];
-        }
+        
+        for (int i = datasize; i < size; i++) 
+            mem[i] = "+0000";
+        
     }
 
-    // Add item at address
-    public void additem(int address, String data) {
-        this.mem[address] = data;
+    public void additem(int address, String data) 
+    {
+        if (address >= 0 && address < mem.length) 
+            mem[address] = data;
+        
+        else 
+            System.out.println("Address out of bounds");
+        
+    }
+    
+    public String getitem(int address)
+    {
+        if (address >= 0 && address < mem.length) 
+            return mem[address];
+        else 
+            return null;
     }
 
-    // Get item at address
-    public String getitem(int address) {
-        return this.mem[address];
-    }
+    public void dump() 
+    {
+        System.out.println("MEMORY:\n");
 
-    // Print memory dump
-    public void dump() {
-        for (int i = 0; i < size; i++) {
-            String data = mem[i];
-            if (data == null) data = "0000";
-            if ((i % 10) == 0) System.out.printf("\n%4s ", data);
-            else System.out.printf("%4s ", data);
-        }
+
+        System.out.print("        ");
+        for (int col = 0; col < 10; col++) 
+            System.out.printf("%10d", col);
+        
         System.out.println();
+
+        for (int i = 0; i < mem.length; i++) 
+        {
+   
+            if (i % 10 == 0) 
+            {
+                System.out.printf("%02d      ", i);
+            }
+
+            String val = mem[i];
+            if (val == null) val = "0000";
+            System.out.printf("%10s", "+" + val);
+
+            if ((i + 1) % 10 == 0) 
+                System.out.println();
+           
+        }
+        System.out.println(); 
     }
 
-    // Test Memory
-    static public void main(String... args) {
-        Memory m = new Memory(new String[]{"1007", "1008", "2007", "3008", "2109", "1109", "4300"});
-        m.dump();
-        m.additem(90, "1000");
-        System.out.println("\nItem at 90: " + m.getitem(90));
+
+    public static void main(String[] args) 
+    {
+        try
+        {
+           File file = new File("test.sml");
+           Scanner reader = new Scanner(file);
+           StringBuilder sb = new StringBuilder();
+           Memory m = new Memory(100);  
+
+           while (reader.hasNextLine()) 
+           {
+                int result = -1;
+                String result2 = "";
+                String line = reader.nextLine().trim();
+                
+                int commentIndex = line.indexOf(';');
+                if (commentIndex != -1) 
+                    line = line.substring(0, commentIndex).trim();
+                
+                String[] parts = line.split("\\s+");
+
+                for (int i = 0; i < parts.length; i++) 
+                {
+                    String part = parts[i];
+
+                    if (part.matches("\\d+")) 
+                    {
+               
+                        if (result == -1) 
+                            result = Integer.parseInt(part); 
+                        else 
+                            result2 = part; 
+                    }
+                } 
+                
+                if (result != -1 && !result2.isEmpty()) 
+                    m.additem(result, result2);
+           }       
+           reader.close();
+           m.dump();
+        }
+        catch(FileNotFoundException e)
+        {
+           System.out.println("An error has occured");
+           e.printStackTrace();
+        }
     }
 }
