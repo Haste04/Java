@@ -8,10 +8,18 @@ public class Simpletron
    private String ir, opcode, operand;
    private Memory memory = new Memory(100);
    private int program_size = 0;
+   private boolean running; 
+   private boolean stepMode = false;
    
    private String filename;
    public Simpletron(String filename)
    {
+      this.filename = filename;
+      this.memory = new Memory(100);
+      this.pc = 0;
+      this.accumulator = 0;
+      this.running = true;
+      
       try (java.util.Scanner scanner = new java.util.Scanner(new java.io.File(filename))) 
         {
             while (scanner.hasNextLine()) 
@@ -64,27 +72,39 @@ public class Simpletron
        System.out.println("Operand: " + operand);
    }
    
-   public void step() //run simpletron sml, display the content of all variables and memory
+   public void step() // run simpletron step-by-step
    {
-      ir = fetch(pc);
-      if(ir == null)
-      {
-         System.out.println("No instruct at address " + pc);
-         return;
-      }
-      
-      opcode = ir.substring(0,2);
-      operand = ir.substring(2);
-      System.out.println("\n\nREGISTERS:");
-      System.out.println("Accumulator: " + accumulator);
-      System.out.println("Program Counter: " + pc);
-      System.out.println("Instruction Register: " + ir);
-      System.out.println("Operation Code: " + opcode);
-      System.out.println("Operand: " + operand);
-      memory.dump();
-      decode(opcode);
-      pc++;
-   }
+       java.util.Scanner scanner = new java.util.Scanner(System.in);
+   
+       while (pc < 100) 
+       {
+           System.out.println("\nPress Enter to execute next instruction...");
+           scanner.nextLine(); 
+   
+           ir = fetch(pc);
+           if (ir == null) 
+           {
+               System.out.println("No instruction at address " + pc);
+               break;
+           }
+   
+           opcode = ir.substring(0, 2);
+           operand = ir.substring(2);
+   
+           System.out.println("\nREGISTERS:");
+           System.out.println("Accumulator: " + accumulator);
+           System.out.println("Program Counter: " + pc);
+           System.out.println("Instruction Register: " + ir);
+           System.out.println("Operation Code: " + opcode);
+           System.out.println("Operand: " + operand);
+   
+           memory.dump();
+           decode(opcode);
+           pc++;
+       }
+
+       System.out.println("-- PROGRAM HALTED --");
+   }   
    
    public String fetch(int address) //get instruction from memory to IR
    {
@@ -121,7 +141,15 @@ public class Simpletron
 
             case "11": // WRITE
                 data = memory.getitem(Integer.parseInt(operand.strip()));
-                System.out.println("Output: " + data );
+                if (data != null) 
+                {
+                    if (stepMode) 
+                        System.out.println("Output: " + data);
+                    else 
+                        System.out.println("Output: " + Integer.parseInt(data));
+                }
+                else 
+                    System.out.println("Output: null");
                 break;
 
             case "20": // LOAD
@@ -207,10 +235,34 @@ public class Simpletron
    
    static public void main(String... args) 
    {
-        Simpletron st = new Simpletron("test.sml");
-        while (st.pc < 100) 
-        {
-            st.step();
-        }
-    }
+      String filename = null;
+      boolean stepMode = false;
+
+    // Check command-line arguments
+       if (args.length == 0) 
+       {
+           System.out.println("Usage: java Simpletron <filename> [-s]");
+           return;
+       }
+   
+       filename = args[0];
+   
+       if (args.length >= 2 && args[1].equalsIgnoreCase("-s")) 
+           stepMode = true;
+       
+   
+       // Create and run Simpletron
+       Simpletron s = new Simpletron(filename);
+       s.stepMode = stepMode;
+   
+       if (stepMode) 
+       {
+           while (s.pc < 100) 
+               s.step();
+       } 
+       else 
+       {
+           s.run();
+       }
+   }
 }
